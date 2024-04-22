@@ -1,0 +1,34 @@
+//Test Case 1: Game Initialization
+//Objective : Verify that the game initializes correctly with the appropriate starting conditions.
+//Steps :
+//	Instantiate a new SimonSays game object.
+//	Check that currentLevel is set to 1.
+//	Check that inputIndex is set to 0.
+//	Check that displayingSequence is true.
+//	Check that gameOver is false.
+//	Ensure the sequence contains one element.
+//	Test Case 2: Sequence Display
+//	Objective : Ensure that the game displays the sequence correctly.
+//	Steps :
+//	Trigger displaySequence() on the game object.
+//	Confirm that displayingSequence becomes false after the sequence is displayed.
+//	Verify that the inputIndex is reset to 0.
+//	Test Case 3 : User Input Handling - Correct Input
+//	Objective : Confirm that the game correctly handles a sequence of user inputs.
+//	Steps :
+//	Simulate the user pressing the correct sequence of keys.
+//	Verify that checkUserInput returns true for correct inputs.
+//	Confirm that the currentLevel increments after a full correct sequence.
+//	Confirm that displayingSequence becomes true after incrementing the level.
+//	Test Case 4 : User Input Handling - Incorrect Input
+//	Objective : Check that the game ends when incorrect input is received.
+//	Steps :
+//	Simulate the user pressing an incorrect key.
+//	Check that checkUserInput returns false.
+//	Confirm that gameOver becomes true.
+//	Test Case 5 : Game Over and Restart
+//	Objective : Verify that the game can restart after ending.
+//	Steps :
+//	Confirm that the game is in a gameOver state.
+//	Call the start method to reset the game.
+//	Check that all game attributes are reset to their initial values, similar to Test Case 1.
