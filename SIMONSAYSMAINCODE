@@ -1,0 +1,157 @@
+#include "raylib.h"
+#include <vector>
+#include <iostream>
+#include <cstdlib>
+#include <ctime>
+#include <chrono>
+#include <thread>
+#include <sstream>
+
+
+std::string intToString(int value) { // read string stream value to display
+    std::stringstream ss;
+    ss << value;
+    return ss.str();
+}
+
+
+
+// Base class for any game
+class Game {
+public:
+    virtual void start() = 0;
+    virtual void update() = 0;
+    virtual void end() = 0;
+    virtual void displaySequence() = 0;
+    virtual ~Game() {} // Virtual destructor for proper cleanup
+};
+
+// SimonSays class now inherits from Game
+class SimonSays : public Game {
+private:
+    std::vector<int> sequence;
+    int currentLevel;
+    int inputIndex;
+    bool displayingSequence;
+    bool gameOver;
+
+public:
+    SimonSays() : currentLevel(0), inputIndex(0), displayingSequence(true), gameOver(false) {
+        srand(time(NULL));
+        start();
+    }
+
+    void start() override {
+        sequence.clear();
+        currentLevel = 1;
+        inputIndex = 0;
+        addRandomToSequence();
+        displayingSequence = true;
+        gameOver = false;
+    }
+
+    void displaySequence() override {
+            if (displayingSequence) {
+                ClearBackground(BLACK);
+                for (int i = 0; i < sequence.size(); i++) {
+                    Color colors[] = { RED, GREEN, BLUE, YELLOW };
+                    int squareSize = 100;
+                    int offsetX = (GetScreenWidth() - squareSize) / 2;
+                    int offsetY = (GetScreenHeight() - squareSize) / 2;
+
+                    BeginDrawing();
+                    DrawRectangle(offsetX, offsetY, squareSize, squareSize, colors[sequence[i]]);
+                    EndDrawing();
+                    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+                    BeginDrawing();
+                    ClearBackground(BLACK);
+                    EndDrawing();
+                }
+                displayingSequence = false;
+                inputIndex = 0;
+            }
+        }
+
+    void update() override {
+        if (!displayingSequence && !gameOver) {
+            if (IsKeyPressed(KEY_ONE)) checkUserInput(0);
+            else if (IsKeyPressed(KEY_TWO)) checkUserInput(1);
+            else if (IsKeyPressed(KEY_THREE)) checkUserInput(2);
+            else if (IsKeyPressed(KEY_FOUR)) checkUserInput(3);
+        }
+    }
+
+
+
+    void end() override {
+        std::cout << "Game over! You reached level " << currentLevel << std::endl;
+        BeginDrawing();
+        ClearBackground(RAYWHITE);
+        std::stringstream ss;
+        ss << "Your final level was: " << currentLevel;
+        std::string finalLevelMessage = ss.str();
+        DrawText("GAME OVER", GetScreenWidth() / 2 - MeasureText("GAME OVER", 20) / 2, GetScreenHeight() / 2 - 10, 20, RED);
+        DrawText(finalLevelMessage.c_str(), GetScreenWidth() / 2 - MeasureText(finalLevelMessage.c_str(), 20) / 2, GetScreenHeight() / 2 + 20, 20, GRAY);
+        EndDrawing();
+    }
+
+
+    // Additional methods specific to SimonSays
+    void addRandomToSequence() { // function to pick random color for next in sequence
+        int randomColor = rand() % 4;
+        sequence.push_back(randomColor);
+    }
+
+    bool checkUserInput(int input) {
+        if (input == sequence[inputIndex]) {
+            inputIndex++;
+            if (inputIndex == sequence.size()) {
+                addRandomToSequence();
+                displayingSequence = true;
+                currentLevel++;
+            }
+            return true;
+        }
+        else {
+            gameOver = true;
+            return false;
+        }
+    }
+
+    // Getters to check game state
+    bool isDisplayingSequence() const { return displayingSequence; }
+    int getCurrentLevel() const { return currentLevel; }
+    bool isGameOver() const { return gameOver; }
+};
+
+int main() {
+    InitWindow(800, 600, "Simon Says");
+    SetTargetFPS(10);
+
+    SimonSays game; // Polymorphism would allow us to declare this as `Game* game = new SimonSays();`
+
+    while (!WindowShouldClose()) {
+        BeginDrawing();
+        ClearBackground(BLACK);
+
+        DrawText("Press 1 for RED, 2 for GREEN, 3 for BLUE, 4 for YELLOW", 10, 10, 20, WHITE);
+
+        if (game.isDisplayingSequence()) {
+            game.displaySequence();
+        }
+        else if (game.isGameOver()) {
+            game.end();
+            std::this_thread::sleep_for(std::chrono::seconds(5)); // Display end message for 5 seconds
+            break; // Exit loop after displaying the game over message
+        }
+        else {
+            game.update();
+        }
+        EndDrawing();
+    }
+
+    CloseWindow();
+    return 0;
+}
+
+
