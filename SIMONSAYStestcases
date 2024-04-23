@@ -32,3 +32,90 @@
 //	Confirm that the game is in a gameOver state.
 //	Call the start method to reset the game.
 //	Check that all game attributes are reset to their initial values, similar to Test Case 1.
+
+//YoungUk Kim:
+//please try these things for test cases in your main
+
+// Test Case 1: Game Initialization
+SimonSays game1;
+check(game1.getCurrentLevel() == 1, "Game Initialization", "currentLevel is set to 1");
+check(game1.getInputIndex() == 0, "Game Initialization", "inputIndex is set to 0");
+check(game1.isDisplayingSequence() == true, "Game Initialization", "displayingSequence is true");
+check(game1.isGameOver() == false, "Game Initialization", "gameOver is false");
+check(game1.getSequenceSize() == 1, "Game Initialization", "sequence contains one element");
+
+// Test Case 2: Sequence Display
+SimonSays game2;
+game2.displaySequence();
+check(game2.isDisplayingSequence() == false, "Sequence Display", "displayingSequence becomes false after the sequence is displayed");
+check(game2.getInputIndex() == 0, "Sequence Display", "inputIndex is reset to 0");
+
+// Test Case 3: User Input Handling - Correct Input
+SimonSays game3;
+int correctInput = game3.getFirstColorInSequence();
+check(game3.checkUserInput(correctInput) == true, "User Input Handling - Correct Input", "checkUserInput returns true for correct inputs");
+check(game3.getCurrentLevel() == 2, "User Input Handling - Correct Input", "currentLevel increments after a full correct sequence");
+check(game3.isDisplayingSequence() == true, "User Input Handling - Correct Input", "displayingSequence becomes true after incrementing the level");
+
+// Test Case 4: User Input Handling - Incorrect Input
+SimonSays game4;
+check(game4.checkUserInput(5) == false, "User Input Handling - Incorrect Input", "checkUserInput returns false");
+check(game4.isGameOver() == true, "User Input Handling - Incorrect Input", "gameOver becomes true");
+
+// Test Case 5: Game Over and Restart
+SimonSays game5;
+game5.checkUserInput(5);
+check(game5.isGameOver() == true, "Game Over and Restart", "game is in a gameOver state");
+game5.start();
+check(game5.getCurrentLevel() == 1, "Game Over and Restart", "currentLevel is set to 1");
+check(game5.isDisplayingSequence() == true, "Game Over and Restart", "displayingSequence is true");
+check(game5.isGameOver() == false, "Game Over and Restart", "gameOver is false");
+check(game5.getSequenceSize() == 1, "Game Over and Restart", "sequence contains one element");
+
+//Also I changed your main a little for menu. Checking message will help you to figure out what am I doing:
+InitWindow(800, 600, "Simon Says");
+SetTargetFPS(10);
+
+SimonSays game; // Polymorphism would allow us to declare this as `Game* game = new SimonSays();`
+
+while (!WindowShouldClose()) {                                                                       
+    BeginDrawing();
+    ClearBackground(BLACK);
+
+    //Show menu to player before we start the game
+    DrawText("Press 1 to start Simon Says", GetScreenWidth() / 2 - MeasureText("Press 1 to start Simon Says", 20) / 2, GetScreenHeight() / 2 - 30, 20, RED);
+    DrawText("Press 2 to quit", GetScreenWidth() / 2 - MeasureText("Press 2 to quit", 20) / 2, GetScreenHeight() / 2, 20, RED);
+
+    //check player press 1
+    if (IsKeyPressed(KEY_ONE)) {
+        SimonSays game; // Polymorphism would allow us to declare this as `Game* game = new SimonSays();`
+
+        while (!WindowShouldClose()) {
+            BeginDrawing();
+            ClearBackground(BLACK);
+
+            DrawText("Press 1 for RED, 2 for GREEN, 3 for BLUE, 4 for YELLOW", 10, 10, 20, WHITE);
+
+            if (game.isDisplayingSequence()) {
+                game.displaySequence();
+            }
+            else if (game.isGameOver()) {
+                game.end();
+                std::this_thread::sleep_for(std::chrono::seconds(5)); // Display end message for 5 seconds
+                break; // Exit loop after displaying the game over message
+            }
+            else {
+                game.update();
+            }
+            EndDrawing();
+        }
+    }
+    //check player press 2
+    else if (IsKeyPressed(KEY_TWO)) {
+        break; // Exit the main menu loop and end the program
+    }
+
+    EndDrawing();
+}
+
+CloseWindow();
